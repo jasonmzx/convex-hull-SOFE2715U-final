@@ -79,10 +79,37 @@ public class Convex_Hull extends JFrame implements ActionListener {
 		MainGUI_Graphics.draw(lin);
 	}
 	
+	//Allows for easy flipping of Y-Axis:
+	
+	public double coordFlip(int fullSize, double truePosition, int headerSpace) {
+		return fullSize - truePosition + headerSpace;
+	}
+	
+	public Shape pointGen(ConvexPoint point, 
+			double scaleX, double scaleY, double offsetX, double offsetY, double headerOffset) {
+        Shape newPoint = new Ellipse2D.Double( 
+          		 (point.x * scaleX + offsetX), 
+          		windowHeight - (point.y * scaleY + offsetY) + headerOffset, 
+           5, 5);  
+        return newPoint;
+	}
+	
+	public Line2D lineGen(ConvexPoint point1, ConvexPoint point2, 
+			double scaleX, double scaleY, double offsetX, double offsetY, double headerOffset) {
+
+        Line2D line = new Line2D.Double(
+        		 (point1.x*scaleX + offsetX), 
+        		windowHeight - (point1.y*scaleY + offsetY) + headerOffset, 
+        		 (point2.x*scaleX + offsetX), 
+        		windowHeight - (point2.y*scaleY + offsetY) + headerOffset
+        );
+        
+        return line;
+	}
+	
 	
     public void paintPlot(Graphics g, ArrayList<ConvexPoint> plot,ArrayList<ConvexPoint> lineList, boolean isLine) {
 		
-    	
     	//XD
 		double xmax = 0;
 		double xmin = 0;
@@ -129,52 +156,36 @@ public class Convex_Hull extends JFrame implements ActionListener {
 		Graphics2D MainGUI_Graphics = (Graphics2D) g;
 
         for(int z = 0; z < plot.size(); z++){
-            ConvexPoint plotPoint = plot.get(z);  
+           
+        	ConvexPoint plotPoint = plot.get(z);  
             
-            
-            Shape newPoint = new Ellipse2D.Double( 
-           		 (plotPoint.x * xScale + offsetX), 
-           		 (plotPoint.y * yScale + offsetY), 
-            5, 5);  
+            Shape newPoint = pointGen(plotPoint, xScale, yScale, offsetX, offsetY, 100);
             MainGUI_Graphics.fill(newPoint);
         }
 
         MainGUI_Graphics.setPaint(new Color(255, 0, 0)); //changes the color of the line 
 
+        
+        //Case where lines are draw alongst side the points:
         if(isLine){
-            for(int z = 0; z <= lineList.size(); z++){
-
-				//This checks for the case where we're at the last element in the Convex Hull Connection list and need to
-				// Attach the last element to the first
+            for(int z = 0; z <= lineList.size()-1; z++){
             	
+            	Line2D line = null;
+                ConvexPoint point1 = lineList.get(z); 
+            	
+                //Case where it's the last element in the line list, and we connect it back to the first element.
             	//Since we're z+1 'ing we need to compare at size - 1
+                
                 if(z==lineList.size() -1 ){
-                ConvexPoint point1 = lineList.get(z); 
-                ConvexPoint point2 = lineList.get(0); 
-                
-
-                
-                
-                Line2D line = new Line2D.Double(
-                		 (point1.x*xScale + offsetX), 
-                		 (point1.y*yScale + offsetY), 
-                		 (point2.x*xScale + offsetX), 
-                		 (point2.y*yScale + offsetY)
-                );
-                
-                MainGUI_Graphics.draw(line);
-                break;
-                }
-                ConvexPoint point1 = lineList.get(z); 
+                	
+                ConvexPoint point2 = lineList.get(0);                 
+                 line = lineGen(point1, point2, xScale, yScale, offsetX, offsetY, 100);    
+                //Regular case of drawing the line.
+                } else {
+                	
                 ConvexPoint point2 = lineList.get(z+1); 
-               
-                
-                Line2D line = new Line2D.Double(
-                		 (point1.x*xScale + offsetX), 
-                		 (point1.y*yScale + offsetY), 
-                		 (point2.x*xScale + offsetX), 
-                		 (point2.y*yScale + offsetY)
-                );
+                line = lineGen(point1, point2, xScale, yScale, offsetX, offsetY, 100);
+                }
                 
                 MainGUI_Graphics.draw(line);
             }
