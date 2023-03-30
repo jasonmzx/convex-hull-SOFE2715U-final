@@ -44,7 +44,7 @@ public class Convex_Hull extends JFrame implements ActionListener {
 		getContentPane().add(panel);
 		setSize(850, 850);
 
-		// Application Title
+		// Application Title :
 		AppTitle = new JLabel();
 		AppTitle.setBounds(10, 10, 600, 30);
 		AppTitle.setText("Convex Hull Algorithm | SOFE2715U Final Project | BY:   Jason Manarroo , Jordan Hagedorn , Tejush Badal");
@@ -165,6 +165,16 @@ public class Convex_Hull extends JFrame implements ActionListener {
 					
 					// Run the loaded Algorithm Class, and store findings in the encapsulationPoints ArrayList
 					encapsulationPoints = loadedAlgorithm.compute();
+					
+					for(int o = 0; encapsulationPoints.size() > o; o++) {
+						
+						ConvexPoint plotPoint = encapsulationPoints.get(o);
+					
+						//Debug:
+						System.out.println(o);
+						System.out.println(plotPoint.angle);
+						System.out.println("AD: > X: "+ plotPoint.x +" , Y: "+ plotPoint.y +" \n");	
+					}
 					
 					System.out.println("Algorithm Debug: convex hull size : "+encapsulationPoints.size()+", plot size : "+scatterPoints.size());
 					paintPlot(getGraphics(), scatterPoints, encapsulationPoints, true);

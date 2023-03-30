@@ -28,10 +28,14 @@ public class Convex_Hull_Algorithm {
 				currentLowest = current;
 			}
 			
-			if(currentLowest.y > current.y ) {
+			//WORKING
+			if( currentLowest.y > current.y ) {
 				currentLowest = current;
+				
 			}
+			
 		}
+		
 		
 		return currentLowest;
 	}
@@ -74,39 +78,53 @@ public class Convex_Hull_Algorithm {
 		
 		ConvexPoint initialPoint = findLowestPoint();
 		
-		System.out.println("LOWEST Y:");
-		System.out.println("X: "+ initialPoint.x +" , Y: "+ initialPoint.y +" \n");
 		
 			for(int z = 0; plot.size() > z; z++) {
 				
+				//Asserting for plot lowest
+			
+				
 				ConvexPoint iter = plot.get(z);
 				
+//				if(iter.x == initialPoint.x && iter.y == initialPoint.y) {
+//					continue;
+//				}
+//				
 				double iterAngle = findAngle(initialPoint, iter );
 				
 				iter.angle = iterAngle;
 				
 				plot.set(z, iter);	
+				
+				//Check if iter is initial point
+				
+				
+				//Make sure that InitialPoint is ALWAYS at the top of plot Array
+				if(iter.x == initialPoint.x && iter.y == initialPoint.y) {
+					iter.angle = -1.0;
+					plot.set(z, iter);
+					
+				}
 			}
+			
+			System.out.println("\nLOWEST Y:");
+			System.out.println("X: "+ initialPoint.x +" , Y: "+ initialPoint.y +" \n");
 		
 		//Sorted Plot points based on Angles:
 		
 		Collections.sort( plot, new ConvexComparator() );
 		
-		boolean running = true;
-		int whileIter = 0;
-		
-		int currentNode = 1;
-		
-		for(int o = 0; plot.size() > o; o++) {
+		for(int r = 0; plot.size() > r; r++) {
 			
-			ConvexPoint plotPoint = plot.get(o);
-		
-			//Debug:
-			System.out.println(plotPoint.angle);
-			System.out.println(">> X: "+ plotPoint.x +" , Y: "+ plotPoint.y +" \n");	
+			ConvexPoint iter = plot.get(r);
+			
+			System.out.println("Angle Test; >> "+iter.x + " y: "+iter.y);
+			System.out.println("iA; "+iter.angle+"\n ");
 		}
 		
-		edgeStack.push(plot.get(0));
+	
+		
+		edgeStack.push(plot.get(0)); //Assuming this is inital
 		edgeStack.push(plot.get(1));
 		
 		//The iterator is starting at 2, since 2 elements are initially pushed onto the Stack 
@@ -116,7 +134,6 @@ public class Convex_Hull_Algorithm {
 			
 			ConvexPoint nextPoint = plot.get(z);
 			ConvexPoint currentPop = edgeStack.pop();
-			
 			
 			//Fixes EmptyStackException throwing
 			try {
