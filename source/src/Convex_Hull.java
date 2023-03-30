@@ -77,14 +77,42 @@ public class Convex_Hull extends JFrame implements ActionListener {
 	}
 	
     public void paintPlot(Graphics g, ArrayList<ConvexPoint> plot,ArrayList<ConvexPoint> lineList, boolean isLine) {
+
+		//SCALING WORK
+		double xmax = 0;
+		double xmin = 0;
+		double ymax = 0;	
+		double ymin = 0;
+
+		for (int i = 0; i < plot.size(); i++) {
+			ConvexPoint point = plot.get(i);
+			if (point.x > xmax) {
+				xmax = point.x;
+			}
+			if (point.x < xmin) {
+				xmin = point.x;
+			}
+			if (point.y > ymax) {
+				ymax = point.y;
+			}
+			if (point.y < ymin) {
+				ymin = point.y;
+			}
+		}
+		double xRange = xmax - xmin;
+		double yRange = ymax - ymin;
+		double xScale = 750 / xRange;
+		double yScale = 750 / yRange;
+		//System.out.println("xScale: " + xScale + " yScale: " + yScale);
+
 		super.paint(g); // fixes the immediate problem.
 		Graphics2D MainGUI_Graphics = (Graphics2D) g;
 
         for(int z = 0; z < plot.size(); z++){
             ConvexPoint plotPoint = plot.get(z);    
             Shape newPoint = new Ellipse2D.Double( 
-            		 (plotPoint.x * 100 + 200), 
-            		 (plotPoint.y * 100 + 200), 
+            		 (plotPoint.x * xScale + 200), 
+            		 (plotPoint.y * yScale + 200), 
             5, 5);  
             MainGUI_Graphics.fill(newPoint);
         }
@@ -103,10 +131,10 @@ public class Convex_Hull extends JFrame implements ActionListener {
                 ConvexPoint point2 = lineList.get(0); 
                 
                 Line2D line = new Line2D.Float(
-                		(int) (point1.x*100 + 200), 
-                		(int) (point1.y*100 + 200), 
-                		(int) (point2.x*100 + 200), 
-                		(int) (point2.y*100 + 200)
+                		(int) (point1.x*xScale + 200), 
+                		(int) (point1.y*yScale + 200), 
+                		(int) (point2.x*xScale + 200), 
+                		(int) (point2.y*yScale + 200)
                 );
                 
                 MainGUI_Graphics.draw(line);
@@ -116,10 +144,10 @@ public class Convex_Hull extends JFrame implements ActionListener {
                 ConvexPoint point2 = lineList.get(z+1); 
                 
                 Line2D line = new Line2D.Float(
-                		(int) (point1.x*100 + 200), 
-                		(int) (point1.y*100 + 200), 
-                		(int) (point2.x*100 + 200), 
-                		(int) (point2.y*100 + 200)
+					(int) (point1.x*xScale + 200), 
+					(int) (point1.y*yScale + 200), 
+					(int) (point2.x*xScale + 200), 
+					(int) (point2.y*yScale + 200)
                 );
                 
                 MainGUI_Graphics.draw(line);
