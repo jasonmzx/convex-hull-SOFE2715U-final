@@ -34,6 +34,9 @@ public class Convex_Hull extends JFrame implements ActionListener {
 	JLabel AppTitle;
 	JPanel panel = new JPanel();
 	
+	int windowWidth = 850;
+	int windowHeight = 850;
+	
 	//Algorithm Variables:
     ArrayList <ConvexPoint> scatterPoints = new ArrayList<>(); //Actual Data Points
     ArrayList <ConvexPoint> encapsulationPoints = new ArrayList<>(); //Points that are encapsulating the scatterPoints
@@ -42,7 +45,7 @@ public class Convex_Hull extends JFrame implements ActionListener {
 
 		// Actual Window / Panel:
 		getContentPane().add(panel);
-		setSize(850, 850);
+		setSize(windowWidth, windowHeight);
 
 		// Application Title :
 		AppTitle = new JLabel();
@@ -76,6 +79,7 @@ public class Convex_Hull extends JFrame implements ActionListener {
 		MainGUI_Graphics.draw(lin);
 	}
 	
+	
     public void paintPlot(Graphics g, ArrayList<ConvexPoint> plot,ArrayList<ConvexPoint> lineList, boolean isLine) {
 		
     	
@@ -85,7 +89,9 @@ public class Convex_Hull extends JFrame implements ActionListener {
 		double ymax = 0;	
 		double ymin = 0;
 		
-		double currentWidth = 750;
+		double paddingSize = 100;
+		
+		double currentWidth = windowWidth - paddingSize;
 
 		for (int i = 0; i < plot.size(); i++) {
 			ConvexPoint point = plot.get(i);
@@ -102,20 +108,33 @@ public class Convex_Hull extends JFrame implements ActionListener {
 				ymin = point.y;
 			}
 		}
+		
 		double xRange = xmax - xmin;
 		double yRange = ymax - ymin;
+		
+		xRange = xRange * 1.15;
+		yRange = yRange * 1.15;
+//		
 		double xScale = currentWidth / xRange;
 		double yScale = currentWidth / yRange;
+			
+		//Offset Scaling:
+		double offsetX = Math.abs(xmin * xScale) + paddingSize/2;
+		double offsetY = Math.abs(ymin * yScale) + paddingSize/2+100;
     	
+		System.out.println("Current x Scale: "+xScale);
+		System.out.println("Current y Scale: "+yScale);
     	
     	super.paint(g); // fixes the immediate problem.
 		Graphics2D MainGUI_Graphics = (Graphics2D) g;
 
         for(int z = 0; z < plot.size(); z++){
-            ConvexPoint plotPoint = plot.get(z);    
+            ConvexPoint plotPoint = plot.get(z);  
+            
+            
             Shape newPoint = new Ellipse2D.Double( 
-           		 (plotPoint.x * xScale + 200), 
-           		 (plotPoint.y * yScale + 200), 
+           		 (plotPoint.x * xScale + offsetX), 
+           		 (plotPoint.y * yScale + offsetY), 
             5, 5);  
             MainGUI_Graphics.fill(newPoint);
         }
@@ -133,11 +152,14 @@ public class Convex_Hull extends JFrame implements ActionListener {
                 ConvexPoint point1 = lineList.get(z); 
                 ConvexPoint point2 = lineList.get(0); 
                 
-                Line2D line = new Line2D.Float(
-                		(int) (point1.x*xScale + 200), 
-                		(int) (point1.y*yScale + 200), 
-                		(int) (point2.x*xScale + 200), 
-                		(int) (point2.y*yScale + 200)
+
+                
+                
+                Line2D line = new Line2D.Double(
+                		 (point1.x*xScale + offsetX), 
+                		 (point1.y*yScale + offsetY), 
+                		 (point2.x*xScale + offsetX), 
+                		 (point2.y*yScale + offsetY)
                 );
                 
                 MainGUI_Graphics.draw(line);
@@ -145,12 +167,13 @@ public class Convex_Hull extends JFrame implements ActionListener {
                 }
                 ConvexPoint point1 = lineList.get(z); 
                 ConvexPoint point2 = lineList.get(z+1); 
+               
                 
-                Line2D line = new Line2D.Float(
-                		(int) (point1.x*xScale + 200), 
-                		(int) (point1.y*yScale + 200), 
-                		(int) (point2.x*xScale + 200), 
-                		(int) (point2.y*yScale + 200)
+                Line2D line = new Line2D.Double(
+                		 (point1.x*xScale + offsetX), 
+                		 (point1.y*yScale + offsetY), 
+                		 (point2.x*xScale + offsetX), 
+                		 (point2.y*yScale + offsetY)
                 );
                 
                 MainGUI_Graphics.draw(line);
