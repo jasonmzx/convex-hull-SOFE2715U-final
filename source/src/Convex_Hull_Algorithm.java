@@ -1,5 +1,6 @@
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.EmptyStackException;
 import java.util.Stack;
 
 
@@ -36,7 +37,7 @@ public class Convex_Hull_Algorithm {
 	}
 	
 	int ccw(ConvexPoint A, ConvexPoint B, ConvexPoint C) {
-		float area = (B.x - A.x) * (C.y - A.y) - (B.y - A.y) * (C.x - A.x);
+		double area = (B.x - A.x) * (C.y - A.y) - (B.y - A.y) * (C.x - A.x);
 		
 		if(area < 0) return -1; // Clockwise
 		if(area > 0) return  1; // Counter - Clockwise
@@ -116,10 +117,17 @@ public class Convex_Hull_Algorithm {
 			ConvexPoint nextPoint = plot.get(z);
 			ConvexPoint currentPop = edgeStack.pop();
 			
+			
+			//Fixes EmptyStackException throwing
+			try {
+			
 			while(edgeStack.peek() != null && ccw(edgeStack.peek(), currentPop, nextPoint) <= 0 ) {
 				currentPop = edgeStack.pop();
 			}
 			
+			} catch (EmptyStackException empty) {
+				System.out.println("ESE Patch !");
+			}
 			
 			edgeStack.push(currentPop);
 			edgeStack.push(plot.get(z));

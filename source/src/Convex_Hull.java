@@ -25,14 +25,6 @@ import javax.swing.JPanel;
 //https://stackoverflow.com/questions/10767265/drawing-a-line-on-a-jframe
 
 public class Convex_Hull extends JFrame implements ActionListener {
-
-	// Component Definitions:
-
-	// JMenuBar mb;
-	// JTextArea ta;
-	// JMenu file;
-	// JMenuItem open;
-
 	
 	//GUI Interactable & Visual Variables:
 	
@@ -90,7 +82,10 @@ public class Convex_Hull extends JFrame implements ActionListener {
 
         for(int z = 0; z < plot.size(); z++){
             ConvexPoint plotPoint = plot.get(z);    
-            Shape newPoint = new Ellipse2D.Double(plotPoint.x+200 , plotPoint.y+200, 10, 10);  
+            Shape newPoint = new Ellipse2D.Double( 
+            		 (plotPoint.x * 100 + 200), 
+            		 (plotPoint.y * 100 + 200), 
+            5, 5);  
             MainGUI_Graphics.fill(newPoint);
         }
 
@@ -101,17 +96,32 @@ public class Convex_Hull extends JFrame implements ActionListener {
 
 				//This checks for the case where we're at the last element in the Convex Hull Connection list and need to
 				// Attach the last element to the first
-				
-                if(z==lineList.size()){
+            	
+            	//Since we're z+1 'ing we need to compare at size - 1
+                if(z==lineList.size() -1 ){
                 ConvexPoint point1 = lineList.get(z); 
-                ConvexPoint point2 = lineList.get(0);   
-                Line2D line = new Line2D.Float(point1.x+200, point1.y+200, point2.x+200, point2.y+200);  
+                ConvexPoint point2 = lineList.get(0); 
+                
+                Line2D line = new Line2D.Float(
+                		(int) (point1.x*100 + 200), 
+                		(int) (point1.y*100 + 200), 
+                		(int) (point2.x*100 + 200), 
+                		(int) (point2.y*100 + 200)
+                );
+                
                 MainGUI_Graphics.draw(line);
                 break;
                 }
                 ConvexPoint point1 = lineList.get(z); 
-                ConvexPoint point2 = lineList.get(z+1);   
-                Line2D line = new Line2D.Float(point1.x+200, point1.y+200, point2.x+200, point2.y+200);  
+                ConvexPoint point2 = lineList.get(z+1); 
+                
+                Line2D line = new Line2D.Float(
+                		(int) (point1.x*100 + 200), 
+                		(int) (point1.y*100 + 200), 
+                		(int) (point2.x*100 + 200), 
+                		(int) (point2.y*100 + 200)
+                );
+                
                 MainGUI_Graphics.draw(line);
             }
         }
@@ -133,29 +143,18 @@ public class Convex_Hull extends JFrame implements ActionListener {
 					BufferedReader br = new BufferedReader(new FileReader(filepath));
 					String points = "";
 					while ((points = br.readLine()) != null) {
-						
+						System.out.println(points);
 						//Adding CSV points to scatterPoints ArrayList
 						
-                        if (points.startsWith("ï")){ // if its first line in csv
-                            points = points.substring(3); // remove first chars
-                            points = points.substring(1, points.length() - 1); // remove quotes
+//                        if (points.startsWith("ï")){ // if its first line in csv
+//                            points = points.substring(3); // remove first chars
+//                            points = points.substring(1, points.length() - 1); // remove quotes
                             
                             //turn array of string coords into x,y and make new convex point
                             String[] temp = points.split(",");
-                            int x = Integer.parseInt(temp[0]);
-                            int y = Integer.parseInt(temp[1]);
-                            scatterPoints.add(new ConvexPoint(x, y));
-
-                        }
-                        else{
-                        	
-                            points = points.substring(1, points.length() - 1);
-
-                            String[] temp = points.split(",");
-                            int x = Integer.parseInt(temp[0]);
-                            int y = Integer.parseInt(temp[1]);
-                            scatterPoints.add(new ConvexPoint(x, y));
-                        }
+                            double x = Double.parseDouble(temp[0]);
+                            double y = Double.parseDouble(temp[1]);
+                            scatterPoints.add(new ConvexPoint(x, y));  
 
 					}
 					
@@ -166,6 +165,9 @@ public class Convex_Hull extends JFrame implements ActionListener {
 					
 					// Run the loaded Algorithm Class, and store findings in the encapsulationPoints ArrayList
 					encapsulationPoints = loadedAlgorithm.compute();
+					
+					System.out.println("Algorithm Debug: convex hull size : "+encapsulationPoints.size()+", plot size : "+scatterPoints.size());
+					paintPlot(getGraphics(), scatterPoints, encapsulationPoints, true);
 					
 					
 				} catch (Exception ex) {
@@ -184,34 +186,6 @@ public class Convex_Hull extends JFrame implements ActionListener {
 		MainGUI.setVisible(true);
 		MainGUI.setTitle("Convex Hull Algorithm | SOFE2715U Final");
 		MainGUI.setDefaultCloseOperation(EXIT_ON_CLOSE);
-		
-		
-//		test.add(new ConvexPoint(20,20));
-//		test.add(new ConvexPoint(30,17));
-//		test.add(new ConvexPoint(40, 30));
-//		
-//		test.add(new ConvexPoint(27, 30));
-//		test.add(new ConvexPoint(22, 32));
-//		
-//		test.add(new ConvexPoint(41, 50));
-//		test.add(new ConvexPoint(32, 60));
-//		
-//		test.add(new ConvexPoint(18, 60));
-//		test.add(new ConvexPoint(18, 45));
-//		
-		
-		
-		
-		/*
-		 * for(int o = 0; ZX.size() > o; o++) {
-		 * 
-		 * ConvexPoint plotPoint = ZX.get(o);
-		 * 
-		 * //Debug: System.out.println(plotPoint.angle);
-		 * System.out.println("ALGO>> X: "+ plotPoint.x +" , Y: "+ plotPoint.y +" \n");
-		 * }
-		 */
-		
 		
 	}
 }
