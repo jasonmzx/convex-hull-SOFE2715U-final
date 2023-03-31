@@ -1,4 +1,5 @@
 import java.awt.Color;
+import java.awt.Font;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.Shape;
@@ -31,7 +32,10 @@ public class Convex_Hull extends JFrame implements ActionListener {
 	JButton CSV_Button;
 	JButton Line_Toggle;
 	
+	boolean toggledLine = true; //Initially Lines will be toggled until turned off
+	
 	JLabel AppTitle;
+	
 	JPanel panel = new JPanel();
 	
 	int windowWidth = 850;
@@ -40,7 +44,9 @@ public class Convex_Hull extends JFrame implements ActionListener {
 	//Algorithm Variables:
     ArrayList <ConvexPoint> scatterPoints = new ArrayList<>(); //Actual Data Points
     ArrayList <ConvexPoint> encapsulationPoints = new ArrayList<>(); //Points that are encapsulating the scatterPoints
-
+    static double timeBenchmark;
+    
+    
 	Convex_Hull() {
 
 		// Actual Window / Panel:
@@ -70,14 +76,6 @@ public class Convex_Hull extends JFrame implements ActionListener {
 		add(AppTitle);
 	}
 
-	public void paint(Graphics g) {
-		super.paint(g); // fixes the immediate problem.
-		Graphics2D MainGUI_Graphics = (Graphics2D) g;
-		Line2D lin = new Line2D.Float(0, 100, 850, 100); // Line
-
-
-		MainGUI_Graphics.draw(lin);
-	}
 	
 	//Allows for easy flipping of Y-Axis:
 	
@@ -107,6 +105,30 @@ public class Convex_Hull extends JFrame implements ActionListener {
         return line;
 	}
 	
+	
+	/*
+	 * GRAPHICS & PAINT FUNCTIONS
+	 * 
+	 *
+	 * */
+	
+	public void paint(Graphics g) {
+		super.paint(g); // fixes the immediate problem.
+		Graphics2D MainGUI_Graphics = (Graphics2D) g;
+		Line2D lin = new Line2D.Float(0, 100, 850, 100); // Line
+
+		
+		//If an algorithm is currently loaded in, call it and paint the plot
+		//Fixes Re-scaling bug:
+		
+		if(scatterPoints.size() == 0 && encapsulationPoints.size() == 0) {
+			paintPlot(getGraphics(), scatterPoints, encapsulationPoints, toggledLine);
+			
+		//Draw Menu Line if no graphics are being rendered right now:
+		} else {
+			MainGUI_Graphics.draw(lin);	
+		}	
+	}
 	
     public void paintPlot(Graphics g, ArrayList<ConvexPoint> plot,ArrayList<ConvexPoint> lineList, boolean isLine) {
 		
@@ -139,8 +161,8 @@ public class Convex_Hull extends JFrame implements ActionListener {
 		double xRange = xmax - xmin;
 		double yRange = ymax - ymin;
 		
-		xRange = xRange * 1.15;
-		yRange = yRange * 1.15;
+		xRange = xRange * 1.20;
+		yRange = yRange * 1.20;
 //		
 		double xScale = currentWidth / xRange;
 		double yScale = currentWidth / yRange;
@@ -149,9 +171,6 @@ public class Convex_Hull extends JFrame implements ActionListener {
 		double offsetX = Math.abs(xmin * xScale) + paddingSize/2;
 		double offsetY = Math.abs(ymin * yScale) + paddingSize/2+100;
     	
-		System.out.println("Current x Scale: "+xScale);
-		System.out.println("Current y Scale: "+yScale);
-    	
     	super.paint(g); // fixes the immediate problem.
 		Graphics2D MainGUI_Graphics = (Graphics2D) g;
 
@@ -159,7 +178,7 @@ public class Convex_Hull extends JFrame implements ActionListener {
            
         	ConvexPoint plotPoint = plot.get(z);  
             
-            Shape newPoint = pointGen(plotPoint, xScale, yScale, offsetX, offsetY, 100);
+            Shape newPoint = pointGen(plotPoint, xScale, yScale, offsetX, offsetY, 35);
             MainGUI_Graphics.fill(newPoint);
         }
 
@@ -179,20 +198,33 @@ public class Convex_Hull extends JFrame implements ActionListener {
                 if(z==lineList.size() -1 ){
                 	
                 ConvexPoint point2 = lineList.get(0);                 
-                 line = lineGen(point1, point2, xScale, yScale, offsetX, offsetY, 100);    
+                 line = lineGen(point1, point2, xScale, yScale, offsetX, offsetY, 35);    
                 //Regular case of drawing the line.
                 } else {
                 	
                 ConvexPoint point2 = lineList.get(z+1); 
-                line = lineGen(point1, point2, xScale, yScale, offsetX, offsetY, 100);
+                line = lineGen(point1, point2, xScale, yScale, offsetX, offsetY, 35);
                 }
                 
                 MainGUI_Graphics.draw(line);
             }
         }
+
+
+        //Redraw menu line:
+        
+        MainGUI_Graphics.setPaint(new Color(0, 0, 0));
+		Line2D menu_line = new Line2D.Float(0, 100, 850, 100); // Line
+
+		MainGUI_Graphics.draw(menu_line);
+		
+		
+		
     }
 
 	public void actionPerformed(ActionEvent e) {
+		
+		//Input CSV button
 		if (e.getSource() == CSV_Button) {
 			
 			JFileChooser fc = new JFileChooser();
@@ -208,47 +240,61 @@ public class Convex_Hull extends JFrame implements ActionListener {
 					BufferedReader br = new BufferedReader(new FileReader(filepath));
 					String points = "";
 					while ((points = br.readLine()) != null) {
-						System.out.println(points);
-						//Adding CSV points to scatterPoints ArrayList
-						
-//                        if (points.startsWith("ï")){ // if its first line in csv
-//                            points = points.substring(3); // remove first chars
-//                            points = points.substring(1, points.length() - 1); // remove quotes
-                            
-                            //turn array of string coords into x,y and make new convex point
+
                             String[] temp = points.split(",");
                             double x = Double.parseDouble(temp[0]);
                             double y = Double.parseDouble(temp[1]);
                             scatterPoints.add(new ConvexPoint(x, y));  
 
 					}
+				
+					br.close(); //Close the file after reading all lines
+					System.out.println("CSV Data Points have been parsed and stored !!!");
+			
+					long startTime = System.currentTimeMillis();
 					
-					br.close(); //Close the file that's being read
-					
-					//Loads the algorithm with parsed data points:
+					// Loads the algorithm with parsed data points:s
 					Convex_Hull_Algorithm loadedAlgorithm = new Convex_Hull_Algorithm(scatterPoints);
 					
 					// Run the loaded Algorithm Class, and store findings in the encapsulationPoints ArrayList
 					encapsulationPoints = loadedAlgorithm.compute();
 					
-					for(int o = 0; encapsulationPoints.size() > o; o++) {
-						
-						ConvexPoint plotPoint = encapsulationPoints.get(o);
+					long stopTime = System.currentTimeMillis();
 					
-						//Debug:
-						System.out.println(o);
-						System.out.println(plotPoint.angle);
-						System.out.println("AD: > X: "+ plotPoint.x +" , Y: "+ plotPoint.y +" \n");	
+					
+					//Some console Logging:
+					
+					timeBenchmark = (stopTime - startTime);
+					
+	
+					boolean algorithmDebug = false;
+					
+					if(algorithmDebug) {
+						for(int o = 0; encapsulationPoints.size() > o; o++) {
+							ConvexPoint plotPoint = encapsulationPoints.get(o);
+							System.out.println(o);
+							System.out.println(plotPoint.angle);
+							System.out.println("AD: > X: "+ plotPoint.x +" , Y: "+ plotPoint.y +" \n");	
+						}
 					}
 					
-					System.out.println("Algorithm Debug: convex hull size : "+encapsulationPoints.size()+", plot size : "+scatterPoints.size());
-					paintPlot(getGraphics(), scatterPoints, encapsulationPoints, true);
+
+					System.out.println("\n>>The algorithm took: "+timeBenchmark+" ms to execute.\n");
+					System.out.println("Algorithm Output: Convex hull size : "+encapsulationPoints.size()+", plot size (n.points): "+scatterPoints.size());
+					paintPlot(getGraphics(), scatterPoints, encapsulationPoints, toggledLine);
 					
 					
 				} catch (Exception ex) {
 					ex.printStackTrace();
 				}
 			}
+		}
+		
+		//Line Toggle Event Listener
+		
+		if(e.getSource() == Line_Toggle) {
+			toggledLine = !toggledLine; //Switch toggledLine
+			paintPlot(getGraphics(), scatterPoints, encapsulationPoints, toggledLine);
 		}
 	}
 
@@ -261,6 +307,8 @@ public class Convex_Hull extends JFrame implements ActionListener {
 		MainGUI.setVisible(true);
 		MainGUI.setTitle("Convex Hull Algorithm | SOFE2715U Final");
 		MainGUI.setDefaultCloseOperation(EXIT_ON_CLOSE);
+		
+		//Logging the Time Elapsed by Algorithm:
 		
 	}
 }

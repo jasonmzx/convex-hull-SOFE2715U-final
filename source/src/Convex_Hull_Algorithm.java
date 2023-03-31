@@ -9,6 +9,8 @@ public class Convex_Hull_Algorithm {
 
 	ArrayList<ConvexPoint> plot;
 	
+	String debugHeader = "[Conv. Hull] : ";
+	
 	//Construct the inputs to our Algorithm:
 	
 	public Convex_Hull_Algorithm(ArrayList<ConvexPoint> Plot) {
@@ -81,23 +83,15 @@ public class Convex_Hull_Algorithm {
 		
 			for(int z = 0; plot.size() > z; z++) {
 				
-				//Asserting for plot lowest
-			
-				
 				ConvexPoint iter = plot.get(z);
 				
-//				if(iter.x == initialPoint.x && iter.y == initialPoint.y) {
-//					continue;
-//				}
-//				
 				double iterAngle = findAngle(initialPoint, iter );
 				
 				iter.angle = iterAngle;
-				
+	
 				plot.set(z, iter);	
 				
-				//Check if iter is initial point
-				
+				//Check if iter is initial point (setting angle to a low value so the sort will push it to the 0th index of array)
 				
 				//Make sure that InitialPoint is ALWAYS at the top of plot Array
 				if(iter.x == initialPoint.x && iter.y == initialPoint.y) {
@@ -105,23 +99,26 @@ public class Convex_Hull_Algorithm {
 					plot.set(z, iter);
 					
 				}
+				
 			}
 			
-			System.out.println("\nLOWEST Y:");
-			System.out.println("X: "+ initialPoint.x +" , Y: "+ initialPoint.y +" \n");
+			System.out.println("\n"+debugHeader+"Lowest Point Found:");
+			System.out.println(debugHeader+"X: "+ initialPoint.x +" , Y: "+ initialPoint.y +" \n");
 		
 		//Sorted Plot points based on Angles:
 		
 		Collections.sort( plot, new ConvexComparator() );
 		
-		for(int r = 0; plot.size() > r; r++) {
-			
-			ConvexPoint iter = plot.get(r);
-			
-			System.out.println("Angle Test; >> "+iter.x + " y: "+iter.y);
-			System.out.println("iA; "+iter.angle+"\n ");
-		}
 		
+		boolean sortDebug = false;
+		
+		if(sortDebug) {
+			for(int r = 0; plot.size() > r; r++) {	
+				ConvexPoint iter = plot.get(r);
+				System.out.println(debugHeader+"sorted >> "+iter.x + " y: "+iter.y);
+				System.out.println("relative angle: "+iter.angle+"\n ");
+			}
+		}
 	
 		
 		edgeStack.push(plot.get(0)); //Assuming this is inital
