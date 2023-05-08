@@ -18,7 +18,7 @@ Screenshot of the Swing UI with `dataSet4.csv` loaded in:
 - Use of JFrame *(Swing)* 's built-in Window utilites for Creation of Windows, Buttons, File Selections, Drawing API, etc...
 
 <hr>
-### Developpement Stack used for this project:
+<h2> Developpement Stack used for this project: </h2>
 
 - Java 17
 - Java Swing Library (Java AWT)
